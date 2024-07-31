@@ -48,11 +48,11 @@
       {
         if (placeholders[i, j] == placeholder)
         {
-          return new int[] { i, j };
+          return [i, j];
         }
       }
     }
-    return new int[0];
+    return [0];
   }
 
   static void VisualizeBoard()
