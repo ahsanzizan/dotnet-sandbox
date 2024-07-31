@@ -1,72 +1,140 @@
-﻿char[,] slots = new char[3, 3];
-char[,] placeholders = new char[3, 3] { { 'a', 'b', 'c' }, { 'd', 'e', 'f' }, { 'g', 'h', 'i' } };
-
-bool PLAYING = true;
-
-// Get a certain position with a placeholder coordinate e.g: a
-int[] GetPositionByCoordinate(string input)
+﻿class TicTacToe
 {
-  // If the input length is longer than 1 it's an invalid input 
-  if (input.Length > 1)
-  {
-    return [];
-  }
+  static char[,] board = new char[3, 3];
+  static char[,] placeholders = new char[3, 3] { { 'a', 'b', 'c' }, { 'd', 'e', 'f' }, { 'g', 'h', 'i' } };
+  static bool playing = true;
 
-  for (int i = 0; i < 3; i++)
+  static void Main(string[] args)
   {
-    for (int j = 0; j < 3; j++)
+    int turnChecker = 0;
+
+    while (playing)
     {
-      // Check the first eleent, because it should only contain one element
-      if (placeholders[i, j] == input.ToCharArray()[0])
+      VisualizeBoard();
+      char player = (turnChecker % 2 == 0) ? 'X' : 'O';
+
+      Console.WriteLine($"\nPlayer {player}'s turn");
+
+      int[] position = GetPlayerPosition();
+      if (position.Length == 0)
       {
-        return [i, j];
+        continue;
       }
+
+      PlaceMarker(position, player);
+
+      if (IsBoardFull())
+      {
+        Console.WriteLine("It's a tie!");
+        break;
+      }
+
+      char? winner = CheckWinner();
+      if (winner != null)
+      {
+        Console.WriteLine($"Winner: {winner}");
+        break;
+      }
+
+      turnChecker++;
     }
   }
 
-  // Return an empty array if not found
-  return [];
-}
-
-// Print the current board condition
-void VisualizeBoardCondition()
-{
-  for (int i = 0; i < 3; i++)
+  static int[] GetPositionFromPlaceholder(char placeholder)
   {
-    for (int j = 0; j < 3; j++)
+    for (int i = 0; i < 3; i++)
     {
-      char element = slots[i, j];
-
-      // Check if the element is empty
-      if (element == '\0')
+      for (int j = 0; j < 3; j++)
       {
-        element = placeholders[i, j];
+        if (placeholders[i, j] == placeholder)
+        {
+          return new int[] { i, j };
+        }
       }
-
-      // Print out the validated element
-      Console.Write(element + " ");
     }
-    Console.WriteLine();
+    return new int[0];
   }
-}
 
-void AssignPlayerTo(int[] index, char player)
-{
-  if (index.Length != 2)
+  static void VisualizeBoard()
   {
-    return;
+    for (int i = 0; i < 3; i++)
+    {
+      for (int j = 0; j < 3; j++)
+      {
+        char element = board[i, j];
+        if (element == '\0')
+        {
+          element = placeholders[i, j];
+        }
+        Console.Write(element + " ");
+      }
+      Console.WriteLine();
+    }
   }
 
-  // Player can be any character
-  slots[index[0], index[1]] = player;
-}
+  static void PlaceMarker(int[] position, char player)
+  {
+    if (position.Length == 2 && board[position[0], position[1]] == '\0')
+    {
+      board[position[0], position[1]] = player;
+    }
+    else
+    {
+      Console.WriteLine("Invalid position or already occupied!");
+    }
+  }
 
-// Main loop
-while (PLAYING)
-{
-  VisualizeBoardCondition();
+  static int[] GetPlayerPosition()
+  {
+    Console.Write("Enter your desired position: ");
+    string? input = Console.ReadLine();
 
-  Console.WriteLine("You are playing as X");
-  Console.Write("Enter your desired position: ");
+    if (string.IsNullOrEmpty(input) || input.Length != 1)
+    {
+      Console.WriteLine("Invalid input");
+      return [];
+    }
 
+    int[] position = GetPositionFromPlaceholder(input[0]);
+    if (position.Length == 0)
+    {
+      Console.WriteLine("Position not found!");
+    }
+
+    return position;
+  }
+
+  static bool IsBoardFull()
+  {
+    foreach (char spot in board)
+    {
+      if (spot == '\0')
+      {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  static char? CheckWinner()
+  {
+    // Check diagonals
+    if (board[1, 1] != '\0' && ((board[0, 0] == board[1, 1] && board[1, 1] == board[2, 2]) ||
+                                (board[0, 2] == board[1, 1] && board[1, 1] == board[2, 0])))
+    {
+      return board[1, 1];
+    }
+
+    for (int i = 0; i < 3; i++)
+    {
+      // Check rows and columns
+      if ((board[i, 0] != '\0' && board[i, 0] == board[i, 1] && board[i, 1] == board[i, 2]) ||
+          (board[0, i] != '\0' && board[0, i] == board[1, i] && board[1, i] == board[2, i]))
+      {
+        return board[i, 0] != '\0' ? board[i, 0] : board[0, i];
+      }
+    }
+
+    return null;
+  }
 }
