@@ -2,13 +2,11 @@
 {
   static char[,] board = new char[3, 3];
   static char[,] placeholders = new char[3, 3] { { 'a', 'b', 'c' }, { 'd', 'e', 'f' }, { 'g', 'h', 'i' } };
-  static bool playing = true;
-
   static void Main(string[] args)
   {
     int turnChecker = 0;
 
-    while (playing)
+    while (true)
     {
       VisualizeBoard();
       char player = (turnChecker % 2 == 0) ? 'X' : 'O';
